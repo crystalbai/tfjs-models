@@ -17,9 +17,11 @@
 import * as posenet from '@tensorflow-models/posenet';
 import * as tf from '@tensorflow/tfjs';
 
+
 const color = 'aqua';
 const boundingBoxColor = 'red';
 const lineWidth = 2;
+const similarity = require('compute-cosine-similarity');
 
 export const tryResNetButtonName = 'tryResNetButton';
 export const tryResNetButtonText = '[New] Try ResNet50';
@@ -106,6 +108,39 @@ export function drawSkeleton(keypoints, minConfidence, ctx, scale = 1) {
         toTuple(keypoints[0].position), toTuple(keypoints[1].position), color,
         scale, ctx);
   });
+}
+
+export function cosineDistanceMatching(poseVector1, poseVector2) {
+  let cosineSimilarity = similarity(poseVector1, poseVector2);
+  // console.log(poseVector1, poseVector2, cosineSimilarity)
+  cosineSimilarity = Math.min(1, cosineSimilarity);
+  let distance = 2 * (1 - cosineSimilarity);
+  return Math.sqrt(distance);
+}
+
+export function createPoseVector(keypoints) {
+  var keypoints_arr = [];
+  var scores_arr = [];
+  for (let i = 0; i < keypoints.length; i++) {
+    const keypoint = keypoints[i];
+    keypoints_arr.push(keypoint.position.x)
+    keypoints_arr.push(keypoint.position.y)
+
+    scores_arr.push(keypoint.score)
+  }
+
+  return keypoints_arr.concat(scores_arr)
+}
+
+export function getPoseScore(keypoints, minConfidence, ctx, scale = 1) {
+  // body...
+  gt_keypoints = JSON.stringify(keypoints)
+
+  gt_keypoints_json = JSON.parse(gt_keypoints)
+
+
+
+
 }
 
 /**
